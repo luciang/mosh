@@ -58,9 +58,8 @@ private:
 
   struct winsize window_size;
 
-  Terminal::Framebuffer local_framebuffer, new_state;
   Overlay::OverlayManager overlays;
-  Network::Transport< Network::UserStream, Terminal::Complete > *network;
+  Network::Transport< Network::UserStream, Network::UserStream > *network;
   Terminal::Display display;
 
   std::wstring connecting_notification;
@@ -91,8 +90,6 @@ public:
     escape_requires_lf( false ), escape_key_help( L"?" ),
       saved_termios(), raw_termios(),
       window_size(),
-      local_framebuffer( 1, 1 ),
-      new_state( 1, 1 ),
       overlays(),
       network( NULL ),
       display( true ), /* use TERM environment var to initialize display */
@@ -103,20 +100,7 @@ public:
       clean_shutdown( false ),
       verbose( s_verbose )
   {
-    if ( predict_mode ) {
-      if ( !strcmp( predict_mode, "always" ) ) {
-	overlays.get_prediction_engine().set_display_preference( Overlay::PredictionEngine::Always );
-      } else if ( !strcmp( predict_mode, "never" ) ) {
 	overlays.get_prediction_engine().set_display_preference( Overlay::PredictionEngine::Never );
-      } else if ( !strcmp( predict_mode, "adaptive" ) ) {
-	overlays.get_prediction_engine().set_display_preference( Overlay::PredictionEngine::Adaptive );
-      } else if ( !strcmp( predict_mode, "experimental" ) ) {
-	overlays.get_prediction_engine().set_display_preference( Overlay::PredictionEngine::Experimental );
-      } else {
-	fprintf( stderr, "Unknown prediction mode %s.\n", predict_mode );
-	exit( 1 );
-      }
-    }
   }
 
   void init( void );
